@@ -3,6 +3,7 @@ const path = require('path');
 const { MongoClient } = require('mongodb');
 const { Menu } = require('electron');
 require('dotenv').config();
+const { ObjectId } = require('mongodb');
 
 const uri = process.env.MONGO_URI;
 const client = new MongoClient(uri);
@@ -63,8 +64,63 @@ app.whenReady().then(async () => {
   createWindow();
 });
 
-ipcMain.handle('get-books', fetchBooks);
 ipcMain.handle('get-issues', fetchIssues);
+
+// Books collection handlers
+ipcMain.handle('get-books', async () => {
+  return await db.collection('Books').find({}).toArray();
+});
+
+ipcMain.handle('add-book', async (event, { bookName }) => {
+  try {
+    const nextId = await getNextSequence('bookId');
+    const newBook = {
+      bookId: nextId,
+      bookName,
+      DateAdded: new Date()
+    };
+    const result = await db.collection('Books').insertOne(newBook);
+    return { 
+      success: true, 
+      book: { ...newBook, _id: result.insertedId } 
+    };
+  } catch (err) {
+    console.error("❌ Failed to add book:", err);
+    return { success: false, error: err.message };
+  }
+});
+
+ipcMain.handle('update-book', async (event, { _id, bookName }) => {
+  try {
+    await db.collection('Books').updateOne(
+      { _id: new ObjectId(_id) },
+      { $set: { bookName } }
+    );
+    return { success: true };
+  } catch (err) {
+    console.error("❌ Failed to update book:", err);
+    return { success: false, error: err.message };
+  }
+});
+
+// Add this new handler for deleting books
+ipcMain.handle('delete-book', async (event, bookId) => {
+  try {
+    if (typeof bookId !== 'number') {
+      throw new Error('bookId must be a number');
+    }
+
+    const result = await db.collection('Books').deleteOne({ bookId });
+    if (result.deletedCount === 1) {
+      return { success: true };
+    }
+    return { success: false, error: "Book not found" };
+  } catch (err) {
+    console.error("❌ Failed to delete book:", err);
+    return { success: false, error: err.message };
+  }
+});
+
 
 ipcMain.handle('issue-book', async (event, issueData) => {
   try {
