@@ -1,4 +1,4 @@
-import { HomeIcon, BookOpenIcon, Cog6ToothIcon, ClockIcon } from '@heroicons/react/24/outline';
+import { HomeIcon, BookOpenIcon, Cog6ToothIcon, ClockIcon, UserIcon, PlusCircleIcon } from '@heroicons/react/24/outline';
 import { NavLink } from 'react-router-dom';
 
 const Sidebar = () => {
@@ -17,6 +17,14 @@ const Sidebar = () => {
         <NavLink to="/view-issues" className={linkClass}>
           <ClockIcon className="w-5 h-5 mr-3" />
           View Issues
+        </NavLink>
+        <NavLink to="/add-book" className={linkClass}>
+          <PlusCircleIcon className="w-5 h-5 mr-3" />
+          Add Book
+        </NavLink>
+        <NavLink to="/members" className={linkClass}>
+          <UserIcon className="w-5 h-5 mr-3" />
+          Members
         </NavLink>
         <NavLink to="/settings" className={linkClass}>
           <Cog6ToothIcon className="w-5 h-5 mr-3" />
