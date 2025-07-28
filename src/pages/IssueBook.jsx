@@ -117,7 +117,6 @@ const IssueBook = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Issue Book</h1>
-          <p className="text-base text-gray-600">Create a new book lending record</p>
         </div>
 
         {/* Main Form Card */}
