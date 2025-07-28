@@ -90,10 +90,10 @@ ipcMain.handle('add-book', async (event, { bookName }) => {
   }
 });
 
-ipcMain.handle('update-book', async (event, { _id, bookName }) => {
+ipcMain.handle('update-book', async (event, { bookId, bookName }) => {
   try {
     await db.collection('Books').updateOne(
-      { _id: new ObjectId(_id) },
+      { bookId: bookId }, // no ObjectId
       { $set: { bookName } }
     );
     return { success: true };

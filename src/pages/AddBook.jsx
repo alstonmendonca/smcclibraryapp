@@ -39,7 +39,7 @@ const AddBook = () => {
   };
 
   const startEditing = (book) => {
-    setEditingId(book._id);
+    setEditingId(book.bookId);
     setEditName(book.bookName);
   };
 
@@ -50,16 +50,16 @@ const AddBook = () => {
 
   const saveEdit = async () => {
     if (!editName.trim()) return;
-    
+
     try {
       const result = await window.electronAPI.updateBook({
-        _id: editingId,
+        bookId: editingId, // now using bookId instead of _id
         bookName: editName
       });
-      
+
       if (result.success) {
-        setBooks(books.map(book => 
-          book._id === editingId ? { ...book, bookName: editName } : book
+        setBooks(books.map(book =>
+          book.bookId === editingId ? { ...book, bookName: editName } : book
         ));
         cancelEditing();
       }
@@ -67,6 +67,7 @@ const AddBook = () => {
       console.error('Failed to update book:', error);
     }
   };
+
 
   const handleDelete = async (bookId) => {
     if (!window.confirm('Are you sure you want to delete this book?')) return;
@@ -130,7 +131,7 @@ const AddBook = () => {
                 <div className="col-span-3 text-gray-600">{book.bookId}</div>
                 
                 <div className="col-span-4">
-                  {editingId === book._id ? (
+                  {editingId === book.bookId ? (
                     <input
                       type="text"
                       value={editName}
@@ -152,7 +153,7 @@ const AddBook = () => {
                 </div>
                 
                 <div className="col-span-2 flex justify-end space-x-2">
-                  {editingId === book._id ? (
+                  {editingId === book.bookId ? (
                     <>
                       <button
                         onClick={cancelEditing}

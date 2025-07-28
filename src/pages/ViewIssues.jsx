@@ -311,7 +311,7 @@ const ViewIssues = () => {
           <div className="flex items-center gap-4">
             <div>
               <h2 className="text-lg font-semibold text-gray-900">Due Today</h2>
-              <p className="text-sm text-gray-500">Returns scheduled for today</p>
+              <p className="text-sm text-gray-500">Returns due today and past due</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
