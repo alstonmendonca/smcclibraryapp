@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PencilIcon, TrashIcon, XMarkIcon, CheckIcon } from '@heroicons/react/24/outline';
+import ConfirmDialog from '../components/ConfirmDialog'; // adjust path if needed
 
 const AddBook = () => {
   const [books, setBooks] = useState([]);
@@ -7,6 +8,10 @@ const AddBook = () => {
   const [editingId, setEditingId] = useState(null);
   const [editName, setEditName] = useState('');
   const [loading, setLoading] = useState(true);
+
+  // State for confirm dialog
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [selectedBookId, setSelectedBookId] = useState(null);
 
   useEffect(() => {
     fetchBooks();
@@ -26,7 +31,6 @@ const AddBook = () => {
 
   const handleAddBook = async () => {
     if (!newBookName.trim()) return;
-    
     try {
       const result = await window.electronAPI.addBook({ bookName: newBookName });
       if (result.success) {
@@ -50,13 +54,11 @@ const AddBook = () => {
 
   const saveEdit = async () => {
     if (!editName.trim()) return;
-
     try {
       const result = await window.electronAPI.updateBook({
         bookId: editingId, // now using bookId instead of _id
         bookName: editName
       });
-
       if (result.success) {
         setBooks(books.map(book =>
           book.bookId === editingId ? { ...book, bookName: editName } : book
@@ -68,19 +70,26 @@ const AddBook = () => {
     }
   };
 
+  // Trigger confirm dialog
+  const confirmDelete = (bookId) => {
+    setSelectedBookId(bookId);
+    setShowConfirm(true);
+  };
 
-  const handleDelete = async (bookId) => {
-    if (!window.confirm('Are you sure you want to delete this book?')) return;
-
+  // Actual delete after confirm
+  const handleDeleteAction = async () => {
     try {
-      const result = await window.electronAPI.deleteBook(bookId);
+      const result = await window.electronAPI.deleteBook(selectedBookId);
       if (result.success) {
-        setBooks(books.filter(book => book.bookId !== bookId));
+        setBooks(books.filter(book => book.bookId !== selectedBookId));
       } else {
         alert(result.error || 'Failed to delete book');
       }
     } catch (error) {
       console.error('Failed to delete book:', error);
+    } finally {
+      setShowConfirm(false);
+      setSelectedBookId(null);
     }
   };
 
@@ -180,7 +189,7 @@ const AddBook = () => {
                         <PencilIcon className="h-5 w-5" />
                       </button>
                       <button
-                        onClick={() => handleDelete(book.bookId)}
+                        onClick={() => confirmDelete(book.bookId)}
                         className="p-1 text-gray-500 hover:text-red-600"
                         title="Delete"
                       >
@@ -193,6 +202,16 @@ const AddBook = () => {
             ))
           )}
         </div>
+
+        {/* Confirm Delete Dialog */}
+        {showConfirm && (
+          <ConfirmDialog
+            title="Delete Book"
+            message="Are you sure you want to delete this book?"
+            onConfirm={handleDeleteAction}
+            onCancel={() => setShowConfirm(false)}
+          />
+        )}
       </div>
     </div>
   );

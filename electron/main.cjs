@@ -155,3 +155,56 @@ ipcMain.handle('update-issue', async (event, data) => {
     { $set: rest }
   );
 });
+
+
+// Members page:
+// Get all members
+ipcMain.handle('getMembers', async () => {
+  try {
+    const members = await db.collection('Users').find({}).toArray();
+    return { success: true, data: members };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});
+
+// Add new member
+ipcMain.handle('addMember', async (event, memberData) => {
+  try {
+    const nextId = await getNextSequence('userNo');
+    const newMember = {
+      ...memberData,
+      userNo: nextId,
+      dateAdded: new Date()
+    };
+    await db.collection('Users').insertOne(newMember);
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});
+
+// Update member - change to use userNo
+ipcMain.handle('updateMember', async (event, userNo, updateData) => {
+  try {
+    await db.collection('Users').updateOne(
+      { userNo: parseInt(userNo) },  // Changed to use userNo
+      { $set: updateData }
+    );
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});
+
+// Delete member - change to use userNo
+ipcMain.handle('deleteMember', async (event, userNo) => {
+  try {
+    await db.collection('Users').deleteOne({ 
+      userNo: parseInt(userNo)  // Changed to use userNo
+    });
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});
