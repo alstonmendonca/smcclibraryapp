@@ -311,7 +311,7 @@ const ViewIssues = () => {
           <div className="flex items-center gap-4">
             <div>
               <h2 className="text-lg font-semibold text-gray-900">Due Today</h2>
-              <p className="text-sm text-gray-500">Returns due today and past due</p>
+              <p className="text-sm text-gray-500">Returns due today</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -431,7 +431,7 @@ const ViewIssues = () => {
           onClick={() => toggleSection("allPending")}
         >
           <div className="flex items-center space-x-3">
-            <h2 className="text-lg font-semibold text-gray-900">All Pending Returns</h2>
+            <h2 className="text-lg font-semibold text-gray-900">All Pending Returns and Past Due</h2>
             <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
               {categorizedIssues.allPending.length}
             </span>

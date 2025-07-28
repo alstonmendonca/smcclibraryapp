@@ -7,14 +7,18 @@ import {
   PlusCircleIcon,
   XCircleIcon,
   CheckCircleIcon,
+  MagnifyingGlassIcon,
+  XMarkIcon
 } from "@heroicons/react/24/outline";
 import ConfirmDialog from "../components/ConfirmDialog";
 
 const Members = () => {
   const [members, setMembers] = useState([]);
+  const [filteredMembers, setFilteredMembers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const [formData, setFormData] = useState({
     userName: "",
@@ -29,12 +33,26 @@ const Members = () => {
     fetchMembers();
   }, []);
 
+  useEffect(() => {
+    if (searchTerm === "") {
+      setFilteredMembers(members);
+    } else {
+      const filtered = members.filter(member =>
+        member.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        member.userClass.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        member.userNo.toString().includes(searchTerm)
+      );
+      setFilteredMembers(filtered);
+    }
+  }, [searchTerm, members]);
+
   const fetchMembers = async () => {
     setIsLoading(true);
     try {
       const result = await window.electronAPI.getMembers();
       if (result.success) {
         setMembers(result.data);
+        setFilteredMembers(result.data);
       }
     } finally {
       setIsLoading(false);
@@ -131,25 +149,10 @@ const Members = () => {
         />
       )}
 
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Members</h1>
-            <p className="text-gray-600 mt-2">Manage library members</p>
-          </div>
-          <button
-            onClick={() => setIsFormOpen(true)}
-            className="bg-black text-white py-3 px-6 rounded-lg flex items-center gap-2 hover:bg-gray-800 transition-all"
-          >
-            <PlusCircleIcon className="w-5 h-5" />
-            Add Member
-          </button>
-        </div>
-
-        {/* Add/Edit Form */}
-        {isFormOpen && (
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm mb-8 overflow-hidden">
+      {/* Edit Member Modal */}
+      {isFormOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 bg-opacity-50">
+          <div className="bg-white rounded-xl border border-gray-200 shadow-lg w-full max-w-2xl mx-4">
             <div className="p-6 border-b border-gray-100 flex justify-between items-center">
               <h2 className="text-xl font-semibold text-gray-900">
                 {editingId ? "Edit Member" : "Add New Member"}
@@ -238,7 +241,48 @@ const Members = () => {
               </div>
             </form>
           </div>
-        )}
+        </div>
+      )}
+
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Members</h1>
+            <p className="text-gray-600 mt-2">Manage library members</p>
+          </div>
+          <button
+            onClick={() => setIsFormOpen(true)}
+            className="bg-black text-white py-3 px-6 rounded-lg flex items-center gap-2 hover:bg-gray-800 transition-all"
+          >
+            <PlusCircleIcon className="w-5 h-5" />
+            Add Member
+          </button>
+        </div>
+
+        {/* Search Bar */}
+        <div className="mb-8">
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
+            </div>
+            <input
+              type="text"
+              className="block w-full pl-10 pr-12 py-3 border border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200 bg-white"
+              placeholder="Search members by name, class or ID..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm("")}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center"
+              >
+                <XMarkIcon className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+              </button>
+            )}
+          </div>
+        </div>
 
         {/* Members Table */}
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
@@ -265,14 +309,14 @@ const Members = () => {
                     </div>
                   </td>
                 </tr>
-              ) : members.length === 0 ? (
+              ) : filteredMembers.length === 0 ? (
                 <tr>
                   <td colSpan="6" className="py-12 text-center text-gray-500">
-                    No members found
+                    {searchTerm ? "No members match your search" : "No members found"}
                   </td>
                 </tr>
               ) : (
-                members.map((member) => (
+                filteredMembers.map((member) => (
                   <tr key={member.userNo} className="hover:bg-gray-50">
                     <td className="py-4 px-6 text-sm font-medium text-gray-900">{member.userNo}</td>
                     <td className="py-4 px-6">
