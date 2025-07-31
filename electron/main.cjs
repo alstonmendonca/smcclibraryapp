@@ -67,16 +67,19 @@ app.whenReady().then(async () => {
 ipcMain.handle('get-issues', fetchIssues);
 
 // Books collection handlers
+// Get books (no change)
 ipcMain.handle('get-books', async () => {
   return await db.collection('Books').find({}).toArray();
 });
 
-ipcMain.handle('add-book', async (event, { bookName }) => {
+// Add book
+ipcMain.handle('add-book', async (event, { bookName, location }) => {
   try {
     const nextId = await getNextSequence('bookId');
     const newBook = {
       bookId: nextId,
       bookName,
+      location,          // add location here
       DateAdded: new Date()
     };
     const result = await db.collection('Books').insertOne(newBook);
@@ -90,13 +93,34 @@ ipcMain.handle('add-book', async (event, { bookName }) => {
   }
 });
 
-ipcMain.handle('update-book', async (event, { bookId, bookName }) => {
+// Update book
+ipcMain.handle('update-book', async (event, { bookId, bookName, location }) => {
   try {
-    await db.collection('Books').updateOne(
-      { bookId: bookId }, // no ObjectId
-      { $set: { bookName } }
-    );
-    return { success: true };
+    // Ensure bookId is a number
+    const idNum = parseInt(bookId, 10);
+
+    // Build a $set object only with the fields you actually passed
+    const updateFields = {};
+    if (bookName !== undefined) updateFields.bookName = bookName;
+    if (location !== undefined)   updateFields.location  = location;
+
+    // If nothing to update, bail early
+    if (Object.keys(updateFields).length === 0) {
+      return { success: false, error: "No fields to update" };
+    }
+
+    const { matchedCount, modifiedCount } = await db
+      .collection('Books')
+      .updateOne(
+        { bookId: idNum },
+        { $set: updateFields }
+      );
+
+    if (matchedCount === 0) {
+      return { success: false, error: "Book not found" };
+    }
+
+    return { success: true, modifiedCount };
   } catch (err) {
     console.error("❌ Failed to update book:", err);
     return { success: false, error: err.message };
@@ -171,12 +195,17 @@ ipcMain.handle('getMembers', async () => {
 // Add new member
 ipcMain.handle('addMember', async (event, memberData) => {
   try {
-    const nextId = await getNextSequence('userNo');
+    let nextId = memberData.userNo; // If userNo is provided, use it
+    if (!nextId) {
+      nextId = await getNextSequence('userNo');  // Generate next ID if not provided
+    }
+
     const newMember = {
       ...memberData,
-      userNo: nextId,
-      dateAdded: new Date()
+      userNo: nextId, // Ensure userNo is set
+      dateAdded: new Date(),
     };
+
     await db.collection('Users').insertOne(newMember);
     return { success: true };
   } catch (err) {

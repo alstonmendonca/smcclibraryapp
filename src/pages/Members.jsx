@@ -24,6 +24,7 @@ const Members = () => {
     userName: "",
     userDOB: dayjs().format("YYYY-MM-DD"),
     userClass: "",
+    userNo: "",
   });
 
   const [showConfirm, setShowConfirm] = useState(false);
@@ -97,6 +98,7 @@ const Members = () => {
       userName: member.userName,
       userDOB: dayjs(member.userDOB).format("YYYY-MM-DD"),
       userClass: member.userClass,
+      userNo: member.userNo,
     });
     setEditingId(member.userNo);
     setIsFormOpen(true);
@@ -133,13 +135,14 @@ const Members = () => {
       userName: "",
       userDOB: dayjs().format("YYYY-MM-DD"),
       userClass: "",
+      userNo: "",
     });
     setEditingId(null);
     setIsFormOpen(false);
   };
 
   return (
-    <div className="bg-gray-50 p-8 min-h-screen">
+    <div className="bg-gray-50 min-h-screen p-6">
       {showConfirm && (
         <ConfirmDialog
           title="Delete Member"
@@ -151,24 +154,39 @@ const Members = () => {
 
       {/* Edit Member Modal */}
       {isFormOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 bg-opacity-50">
-          <div className="bg-white rounded-xl border border-gray-200 shadow-lg w-full max-w-2xl mx-4">
-            <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-gray-900">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-white border border-gray-300 rounded-xl shadow-xl w-full max-w-2xl">
+            <div className="p-5 border-b border-gray-200 flex justify-between items-center">
+              <h2 className="text-xl font-bold text-gray-900">
                 {editingId ? "Edit Member" : "Add New Member"}
               </h2>
               <button
                 onClick={resetForm}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 hover:text-gray-600 transition-colors"
               >
-                <XCircleIcon className="w-6 h-6" />
+                <XCircleIcon className="w-7 h-7" />
               </button>
             </div>
 
             <form onSubmit={handleSubmit} className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {!editingId && (
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700 block mb-2">
+                      User Number
+                    </label>
+                    <input
+                      type="number"
+                      name="userNo"
+                      value={formData.userNo}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
+                      required
+                    />
+                  </div>
+                )}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700 block">
+                  <label className="text-sm font-medium text-gray-700 block mb-2">
                     Full Name
                   </label>
                   <input
@@ -176,13 +194,13 @@ const Members = () => {
                     name="userName"
                     value={formData.userName}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black focus:outline-none"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
                     required
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700 block">
+                  <label className="text-sm font-medium text-gray-700 block mb-2">
                     Date of Birth
                   </label>
                   <input
@@ -190,13 +208,13 @@ const Members = () => {
                     name="userDOB"
                     value={formData.userDOB}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black focus:outline-none"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
                     required
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700 block">
+                  <label className="text-sm font-medium text-gray-700 block mb-2">
                     Class
                   </label>
                   <input
@@ -204,38 +222,37 @@ const Members = () => {
                     name="userClass"
                     value={formData.userClass}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black focus:outline-none"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
                     required
                   />
                 </div>
+
+
               </div>
 
-              <div className="mt-6 flex justify-end gap-3">
+              <div className="mt-8 flex justify-end gap-3">
                 <button
                   type="button"
                   onClick={resetForm}
-                  className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                  className="px-6 py-3 border border-gray-400 rounded-lg text-gray-700 hover:bg-gray-100 font-medium transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="px-6 py-3 bg-black text-white rounded-lg flex items-center gap-2 hover:bg-gray-800 disabled:bg-gray-300"
+                  className="px-6 py-3 bg-gray-900 text-white rounded-lg flex items-center gap-2 hover:bg-gray-800 disabled:bg-gray-400 transition-all font-medium shadow-sm"
                 >
                   {isLoading ? (
                     <span className="flex items-center">
-                      <svg className="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+                      <svg className="animate-spin h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
                       Processing...
                     </span>
                   ) : (
-                    <>
-                      <CheckCircleIcon className="w-5 h-5" />
-                      {editingId ? "Update Member" : "Add Member"}
-                    </>
+                    <span>{editingId ? "Update Member" : "Add Member"}</span>
                   )}
                 </button>
               </div>
@@ -244,16 +261,16 @@ const Members = () => {
         </div>
       )}
 
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Members</h1>
-            <p className="text-gray-600 mt-2">Manage library members</p>
-          </div>
+      {/* Header Section */}
+      <div className="mb-8">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+            <UserIcon className="w-9 h-9 text-gray-800" />
+            Member Management
+          </h1>
           <button
             onClick={() => setIsFormOpen(true)}
-            className="bg-black text-white py-3 px-6 rounded-lg flex items-center gap-2 hover:bg-gray-800 transition-all"
+            className="px-5 py-3 bg-gray-900 text-white rounded-lg flex items-center gap-2 hover:bg-gray-800 transition-all font-medium shadow-sm"
           >
             <PlusCircleIcon className="w-5 h-5" />
             Add Member
@@ -261,106 +278,111 @@ const Members = () => {
         </div>
 
         {/* Search Bar */}
-        <div className="mb-8">
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
-            </div>
-            <input
-              type="text"
-              className="block w-full pl-10 pr-12 py-3 border border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200 bg-white"
-              placeholder="Search members by name, class or ID..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            {searchTerm && (
-              <button
-                onClick={() => setSearchTerm("")}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center"
-              >
-                <XMarkIcon className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-              </button>
-            )}
+        <div className="relative max-w-md">
+          <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+            <MagnifyingGlassIcon className="w-5 h-5 text-gray-400" />
           </div>
+          <input
+            type="text"
+            placeholder="Search by name, class or ID..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
+          />
+          {searchTerm && (
+            <button
+              onClick={() => setSearchTerm('')}
+              className="absolute inset-y-0 right-0 flex items-center pr-3"
+            >
+              <XMarkIcon className="w-5 h-5 text-gray-400 hover:text-gray-600" />
+            </button>
+          )}
         </div>
+      </div>
 
-        {/* Members Table */}
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-          <table className="w-full">
-            <thead className="bg-gray-50">
+      {/* Member Table */}
+      <div className="overflow-hidden rounded-xl border border-gray-300 shadow-sm">
+        <table className="w-full text-sm">
+          <thead className="bg-gray-100 text-gray-700">
+            <tr>
+              <th className="px-6 py-4 text-left font-bold">User No</th>
+              <th className="px-6 py-4 text-left font-bold">Full Name</th>
+              <th className="px-6 py-4 text-left font-bold">Class</th>
+              <th className="px-6 py-4 text-left font-bold">Date of Birth</th>
+              <th className="px-6 py-4 text-center font-bold">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200">
+            {isLoading ? (
               <tr>
-                <th className="py-4 px-6 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                <th className="py-4 px-6 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Member</th>
-                <th className="py-4 px-6 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">DOB</th>
-                <th className="py-4 px-6 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Class</th>
-                <th className="py-4 px-6 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Date Added</th>
-                <th className="py-4 px-6"></th>
+                <td colSpan="5" className="text-center py-12">
+                  <div className="flex flex-col items-center justify-center">
+                    <svg className="animate-spin h-8 w-8 text-gray-700 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span className="text-gray-700">Loading members...</span>
+                  </div>
+                </td>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {isLoading ? (
-                <tr>
-                  <td colSpan="6" className="py-12 text-center">
-                    <div className="flex justify-center">
-                      <svg className="animate-spin h-8 w-8 text-gray-400" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
+            ) : filteredMembers.length === 0 ? (
+              <tr>
+                <td colSpan="5" className="text-center py-10">
+                  <div className="flex flex-col items-center justify-center py-4">
+                    <UserIcon className="w-16 h-16 text-gray-300 mb-3" />
+                    <p className="text-lg font-medium text-gray-700">No members found</p>
+                    <p className="mt-1 text-gray-500">Try adjusting your search or add a new member</p>
+                  </div>
+                </td>
+              </tr>
+            ) : (
+              filteredMembers.map((member) => (
+                <tr 
+                  key={member.userNo} 
+                  className="hover:bg-gray-50 transition-colors"
+                >
+                  <td className="px-6 py-4 font-medium text-gray-900">{member.userNo}</td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="bg-gray-100 p-2 rounded-lg">
+                        <UserIcon className="w-5 h-5 text-gray-700" />
+                      </div>
+                      <span className="font-medium">{member.userName}</span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="bg-gray-200 text-gray-800 px-2.5 py-1 rounded-lg font-medium">
+                      {member.userClass}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-gray-700">{dayjs(member.userDOB).format("MMM D, YYYY")}</td>
+                  <td className="px-6 py-4">
+                    <div className="flex justify-center gap-3">
+                      <button 
+                        onClick={() => handleEdit(member)}
+                        className="p-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+                        title="Edit"
+                      >
+                        <PencilIcon className="w-5 h-5" />
+                      </button>
+                      <button 
+                        onClick={() => handleDelete(member.userNo)}
+                        className="p-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+                        title="Delete"
+                      >
+                        <TrashIcon className="w-5 h-5" />
+                      </button>
                     </div>
                   </td>
                 </tr>
-              ) : filteredMembers.length === 0 ? (
-                <tr>
-                  <td colSpan="6" className="py-12 text-center text-gray-500">
-                    {searchTerm ? "No members match your search" : "No members found"}
-                  </td>
-                </tr>
-              ) : (
-                filteredMembers.map((member) => (
-                  <tr key={member.userNo} className="hover:bg-gray-50">
-                    <td className="py-4 px-6 text-sm font-medium text-gray-900">{member.userNo}</td>
-                    <td className="py-4 px-6">
-                      <div className="flex items-center">
-                        <div className="bg-gray-200 border-2 border-dashed rounded-xl w-10 h-10 flex items-center justify-center mr-3">
-                          <UserIcon className="w-5 h-5 text-gray-500" />
-                        </div>
-                        <span className="font-medium">{member.userName}</span>
-                      </div>
-                    </td>
-                    <td className="py-4 px-6 text-sm text-gray-700">
-                      {dayjs(member.userDOB).format("DD MMM YYYY")}
-                    </td>
-                    <td className="py-4 px-6 text-sm text-gray-700">
-                      {member.userClass}
-                    </td>
-                    <td className="py-4 px-6 text-sm text-gray-500">
-                      {dayjs(member.dateAdded).format("DD MMM YYYY")}
-                    </td>
-                    <td className="py-4 px-6 text-right text-sm font-medium">
-                      <div className="flex justify-end space-x-3">
-                        <button
-                          onClick={() => handleEdit(member)}
-                          className="text-gray-500 hover:text-gray-700"
-                        >
-                          <PencilIcon className="w-5 h-5" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(member.userNo)}
-                          className="text-gray-500 hover:text-red-600"
-                        >
-                          <TrashIcon className="w-5 h-5" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+              ))
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );
 };
+
 
 export default Members;
